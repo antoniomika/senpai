@@ -10,6 +10,7 @@ import (
 
 	"git.sr.ht/~rockorager/vaxis"
 	"git.sr.ht/~rockorager/vaxis/widgets/align"
+	"github.com/containerd/console"
 
 	"git.sr.ht/~delthas/senpai/events"
 	"git.sr.ht/~delthas/senpai/irc"
@@ -27,6 +28,8 @@ type Config struct {
 	MergeLine         func(former *Line, addition Line)
 	Colors            ConfigColors
 	LocalIntegrations bool
+	WithConsole       console.Console
+	WithTTY           string
 }
 
 type ConfigColors struct {
@@ -98,6 +101,8 @@ func New(config Config) (ui *UI, colors ConfigColors, err error) {
 	vx, err = vaxis.New(vaxis.Options{
 		DisableMouse: !config.Mouse,
 		CSIuBitMask:  vaxis.CSIuDisambiguate | vaxis.CSIuReportEvents | vaxis.CSIuAlternateKeys | vaxis.CSIuAllKeys | vaxis.CSIuAssociatedText,
+		WithTTY:      config.WithTTY,
+		WithConsole:  config.WithConsole,
 	})
 	if err != nil {
 		return

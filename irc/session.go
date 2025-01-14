@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"unicode"
 
@@ -168,6 +169,8 @@ type Session struct {
 
 	receivedISupport bool
 	receivedUserMode bool
+
+	mu sync.Mutex
 }
 
 func NewSession(out chan<- Message, params SessionParams) *Session {
@@ -224,6 +227,8 @@ func NewSession(out chan<- Message, params SessionParams) *Session {
 }
 
 func (s *Session) Close() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if s.closed {
 		return
 	}

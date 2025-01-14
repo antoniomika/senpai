@@ -195,6 +195,8 @@ func NewApp(cfg Config) (app *App, err error) {
 		},
 		Colors:            cfg.Colors,
 		LocalIntegrations: cfg.LocalIntegrations,
+		WithTTY:           cfg.WithTTY,
+		WithConsole:       cfg.WithConsole,
 	})
 	if err != nil {
 		return
@@ -319,7 +321,12 @@ func (app *App) eventLoop() {
 	}
 	go func() {
 		// drain events until we close
-		for range app.events {
+		for {
+			select {
+			case <-app.events:
+			case <-time.After(10 * time.Millisecond):
+				return
+			}
 		}
 	}()
 }
@@ -418,6 +425,7 @@ func (app *App) ircLoop(netID string) {
 			HeadColor: ui.ColorRed,
 			Body:      ui.PlainString("Connection lost"),
 		})
+		session.Close()
 	}
 }
 
